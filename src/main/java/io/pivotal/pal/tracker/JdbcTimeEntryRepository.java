@@ -12,6 +12,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+
 public class JdbcTimeEntryRepository implements TimeEntryRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -28,7 +30,8 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
         jdbcTemplate.update(con -> {
                     PreparedStatement statement = con.prepareStatement(
                             "INSERT INTO time_entries (project_id, user_id, date, hours) " +
-                                    "VALUES (?, ?, ?, ?)"
+                                    "VALUES (?, ?, ?, ?)",
+                            RETURN_GENERATED_KEYS
                     );
                     statement.setLong(1, timeEntry.getProjectId());
                     statement.setLong(2, timeEntry.getUserId());
@@ -44,6 +47,7 @@ public class JdbcTimeEntryRepository implements TimeEntryRepository {
     public TimeEntry find(long id) {
         return jdbcTemplate.query(
                 "SELECT id, project_id, user_id, date, hours FROM time_entries WHERE id = ?",
+                new Object[]{id},
                 extractor);
     }
 
